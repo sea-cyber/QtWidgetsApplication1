@@ -2,6 +2,7 @@
 #include "QtWidgetsApplication1.h"
 //#include"readShapefile.h"
 //#include "QtWidgetsApplication1.h"
+#define GLFW_INCLUDE_NONE
 #include <QMessageBox>
 #include <QFileDialog>
 
@@ -58,34 +59,44 @@ void QtWidgetsApplication1::on_actionNew_triggered()
 }
 
 void QtWidgetsApplication1::on_actionOpen_triggered()
-{   
-    // 打开文件的操作
-    QString fileName = QFileDialog::getOpenFileName(this, "open file", "", "all (*.*)");
-    if (!fileName.isEmpty()) {
+{
+	GDALAllRegister(); // 注册所有驱动程序
+    OGRRegisterAll();
+    QFileDialog fileDialog(this);
+    fileDialog.setWindowTitle("打开SHP文件");
+    fileDialog.setFileMode(QFileDialog::ExistingFile);
+    fileDialog.setNameFilter("ESRI Shapefiles (*.shp);;所有文件 (*)");
+    if (fileDialog.exec()) {//
+        QString filePath = fileDialog.selectedFiles().first();
 
-        QFile file(fileName);
-        if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-            QTextStream in(&file);
-            in.setCodec("UTF-8"); // 设置编码，确保中文正常显示
+        // 显示加载状态
+        statusBar()->showMessage("正在加载: " + filePath);
 
-            QString content = in.readAll(); // 读取全部内容
+        // 打开SHP文件
+        GDALDataset* dataset = (GDALDataset*)GDALOpenEx(
+            filePath.toUtf8().constData(),
+            GDAL_OF_VECTOR,
+            nullptr, nullptr, nullptr
+        );
 
-            // 打印到调试输出
-            qDebug() << "File content:" << content;
-
-            // 或者显示在消息框中(适合小文件)
-            QMessageBox::information(this, "File Content", content);
-                
-            file.close();
+        if (dataset == nullptr) {
+            QMessageBox::critical(this, "错误", "无法打开文件: " + filePath);
+            statusBar()->showMessage("加载失败");
+            return;
         }
-        else {
-            // 打开失败时显示错误信息
-            QMessageBox::warning(this, "Error", "Failed to open file: " + file.errorString());
-        }
+
+        // 清空现有数据
+        //clearPreviousData();
+
+        // 处理SHP数据
+        //processShapefile(dataset);
+
+        // 释放资源
+        GDALClose(dataset);
+
+        // 显示完成状态
+        statusBar()->showMessage("加载完成: " + filePath);
     }
-        //FileReader::instance()->readShapefile();
-        QMessageBox::information(this, "tips", "open file: " + fileName);
-    
 }
 
 void QtWidgetsApplication1::on_actionSave_triggered()

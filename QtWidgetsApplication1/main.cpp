@@ -1,7 +1,10 @@
+//#include <glad/glad.h>
 #include "stdafx.h"
 #include "QtWidgetsApplication1.h"
 #include <QtWidgets/QApplication>
 #include "gdal_priv.h"
+//#include <GLFW/glfw3.h>
+#include<iostream>
 int main(int argc, char *argv[])
 {
     GDALAllRegister();
