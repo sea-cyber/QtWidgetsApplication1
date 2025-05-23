@@ -2,6 +2,7 @@
 #include "QtWidgetsApplication1.h"
 //#include"readShapefile.h"
 //#include "QtWidgetsApplication1.h"
+#define GLFW_INCLUDE_NONE
 #include <QMessageBox>
 #include <QFileDialog>
 #include"ogrsf_frmts.h"
@@ -66,10 +67,10 @@ void QtWidgetsApplication1::createMenus()
     connect(aboutAction, &QAction::triggered, this, &QtWidgetsApplication1::on_actionAbout_triggered);
     connect(clipAction, &QAction::triggered, this, &QtWidgetsApplication1::on_clipAction_triggered);
 }
-     
+
 // 菜单项对应的槽函数实现
 void QtWidgetsApplication1::on_actionNew_triggered()
-{   
+{
     // 新建文件的操作
     QMessageBox::information(this, "tips", "new file");
 }
@@ -135,7 +136,7 @@ void QtWidgetsApplication1::on_actionOpen_triggered() {
     m_lines.clear();
     m_points.clear();
 
-    // 打开SHP文件
+        // 打开SHP文件
     GDALDataset* poDS = (GDALDataset*)GDALOpenEx(
         filePath.toUtf8().constData(), GDAL_OF_VECTOR, NULL, NULL, NULL);
 
@@ -149,9 +150,9 @@ void QtWidgetsApplication1::on_actionOpen_triggered() {
     if (poLayer == nullptr) {
         GDALClose(poDS);
         QMessageBox::critical(this, "错误", "无法获取图层！");
-        return;
-    }
-  
+            return;
+        }
+
     // 获取空间参考信息（用于坐标转换）
     OGRSpatialReference* poSRS = poLayer->GetSpatialRef();
     if (poSRS == nullptr) {
@@ -232,7 +233,7 @@ void QtWidgetsApplication1::on_actionOpen_triggered() {
         OGRFeature::DestroyFeature(poFeature);
     }
 
-    // 释放资源
+        // 释放资源
     GDALClose(poDS);
 
     // 刷新界面

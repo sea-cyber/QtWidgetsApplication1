@@ -25,7 +25,8 @@ private slots:
 protected:
     void paintEvent(QPaintEvent* event) override;  // 重绘事件
 private:
-  
+
+private:
     Ui::QtWidgetsApplication1Class ui;
     void createMenus();  // 创建菜单栏
     QVector<QPolygonF> m_polygons;    // 存储多边形坐标
